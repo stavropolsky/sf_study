@@ -1,0 +1,64 @@
+---
+# tasks file for dnsmasq
+
+- name: Update packages
+  apt:
+    update_cache: yes
+  become: yes
+
+
+- name: Install dnsmasq
+  apt:
+    name: dnsmasq
+    state: present
+  become: yes
+
+
+- name: Install iptables-persistent
+  apt:
+    name: iptables-persistent
+    state: present
+
+
+- name: Add iptables rule
+  iptables:
+    chain: INPUT
+    protocol: udp
+    destination_port: 53
+    jump: ACCEPT
+    state: present
+
+
+- name: Save iptables rules to a file
+  copy:
+    content: "{{ lookup('pipe', 'sudo iptables-save') }}"
+    dest: /etc/iptables/rules.v4
+
+
+- name: Copy config dnsmasq
+  copy:
+    src: ~/ansible/project/dnsmasq/files/dnsmasq.conf
+    dest: /etc/dnsmasq.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Copy template to /etc/resolv.conf
+  template:
+    src: ~/ansible/project/dnsmasq/templates/resolv.conf.j2
+    dest: /etc/resolv.conf
+
+
+- name: Disable systemd-resolved service
+  service:
+    name: systemd-resolved
+    enabled: no
+    state: stopped
+
+
+- name: Restart dnsmasq
+  service:
+    name: dnsmasq
+    state: restarted
+    enabled: yes

@@ -1,0 +1,9 @@
+---
+- name: Configure Nginx and PHP-FPM
+  hosts: test
+  become: yes
+  vars:
+    php_version: "8.1"
+
+  roles:
+    - nginx+php-fpm

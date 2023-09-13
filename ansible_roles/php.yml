@@ -1,0 +1,6 @@
+---
+- name: Install php-fpm
+  hosts: test
+  become: yes
+  roles:
+    - php

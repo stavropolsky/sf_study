@@ -1,0 +1,36 @@
+---
+- name: Configure superusers group
+  hosts: test
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Create superusers group
+      group:
+        name: superusers
+        state: present
+
+    - name: Ensure user2 exists
+      user:
+        name: user2
+        state: present
+
+    - name: Ensure user3 exists
+      user:
+        name: user3
+        state: present
+
+    - name: Add user2 and user3 to superusers group
+      user:
+        name: "{{ item }}"
+        groups: superusers
+        append: yes
+      with_items:
+        - user2
+        - user3
+
+    - name: Allow superusers to execute sudo -i without password
+      lineinfile:
+        path: /etc/sudoers
+        insertafter: '^%superusers'
+        line: '%superusers ALL=(ALL) NOPASSWD: /usr/bin/sudo -i'
+        validate: 'visudo -cf %s'

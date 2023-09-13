@@ -1,0 +1,54 @@
+---
+
+- name: Update packages
+  apt:
+    update_cache: yes
+
+
+- name: Install Nginx and PHP-FPM
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - nginx
+    - php-fpm
+
+- name: Copy Nginx site configuration
+  template:
+    src: nginx_site.conf.j2
+    dest: /etc/nginx/sites-available/default
+
+
+- name: Ensure Nginx default site is enabled
+  stat:
+    path: /etc/nginx/sites-enabled/default
+  register: nginx_default_site
+
+
+- name: Create a symbolic link to Nginx default site
+  command: ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+  when: not nginx_default_site.stat.exists
+
+
+- name: Start PHP-FPM and enable it at boot
+  service:
+    name: php{{ php_version }}-fpm
+    state: started
+    enabled: yes
+
+
+- name: Create new root directory
+  file:
+    path=/opt/nginx/ansible
+    mode=0755
+    state=directory
+    owner=www-data
+    group=www-data
+
+
+- name: Copy index.php
+  template:
+    src: index.php.j2
+    dest: /opt/nginx/ansible/index.php
+  notify: Restart nginx
+

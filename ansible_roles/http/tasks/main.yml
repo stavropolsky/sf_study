@@ -1,0 +1,31 @@
+---
+# tasks file for http
+- name: Update packages
+  apt:
+    update_cache: yes
+
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Copy index.php
+  template:
+    src: index.php.j2
+    dest: /var/www/html/index.php
+
+- name: Copy Nginx site configuration
+  template:
+    src: nginx_site.conf.j2
+    dest: /etc/nginx/sites-available/default
+  notify: Restart nginx
+
+- name: Ensure Nginx default site is enabled
+  stat:
+    path: /etc/nginx/sites-enabled/default
+  register: nginx_default_site
+
+- name: Create a symbolic link to Nginx default site
+  command: ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+  notify: Restart nginx
+  when: not nginx_default_site.stat.exists

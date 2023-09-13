@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: yes
+  roles:
+    - users
+
+- hosts: nginx_server
+  become: yes
+  roles:
+    - http
+
+- hosts: php-fpm_server
+  become: yes
+  roles:
+    - php
+

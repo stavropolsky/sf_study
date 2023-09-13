@@ -1,0 +1,6 @@
+---
+- name: Create user and deploy ssh key
+  hosts: test
+  become: yes
+  roles:
+    - users

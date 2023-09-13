@@ -1,0 +1,5 @@
+[nginx_server]
+server1 ansible_ssh_host=158.160.106.35 ansible_user=ubuntu
+[php-fpm_server]
+server2 ansible_ssh_host=62.84.113.45 ansible_user=ubuntu
+

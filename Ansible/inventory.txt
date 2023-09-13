@@ -1,0 +1,9 @@
+[app]
+vm2 ansible_ssh_host=84.201.158.111 ansible_user=ansible
+vm3 ansible_ssh_host=62.84.113.87 ansible_user=ansible
+
+[database]
+vm1 ansible_ssh_host=51.250.8.197 ansible_user=ansible version=12 data_dir=/data/postgresql
+
+[web]
+vm1 ansible_ssh_host=51.250.8.197 ansible_user=ansible

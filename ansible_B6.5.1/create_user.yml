@@ -1,0 +1,41 @@
+---
+- name: Add SSH key to user1
+  hosts: test
+  become: true
+
+  tasks:
+    - name: Create user
+      user:
+        name: user1
+        state: present
+        createhome: yes
+
+    - name: Generate SSH key pair for user1
+      openssh_keypair:
+        path: ~/.ssh/id_rsa
+        owner: user1
+        group: user1
+        size: 4096
+        force: yes
+        regenerate: yes
+      delegate_to: localhost
+      when: ansible_user == 'root'
+
+    - name: Create directory .ssh
+      file:
+        path: /home/user1/.ssh
+        state: directory
+        mode: "0700"
+        owner: user1
+        group: user1
+
+    - name: Encrypt public key
+      ansible.builtin.shell: >
+        ansible-vault encrypt ~/.ssh/id_rsa.pub --output ./user1_key.yml
+      delegate_to: localhost
+      changed_when: false
+
+    - name: Copy encrypted key file to remote host
+      copy:
+        src: ./user1_key.yml
+        dest: /home/user1/.ssh/id_rsa.pub

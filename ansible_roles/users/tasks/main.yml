@@ -1,0 +1,16 @@
+---
+# tasks file for users
+- name: Create user
+  ansible.builtin.user:
+    name: "{{ username }}"
+    groups: "{{ usergroup }}"
+    password: "{{ password | password_hash('sha512') }}"
+    state: present
+    createhome: yes
+  register: user_created
+
+- name: Deploy ssh key
+  authorized_key:
+    user: "{{ username }}"
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  when: user_created.changed

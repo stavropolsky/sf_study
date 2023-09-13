@@ -1,0 +1,28 @@
+---
+# tasks file for php
+- name: Install PHP-FPM package
+  apt:
+    name: php-fpm
+    state: present
+
+- name: Configure PHP-FPM to listen on port 9000
+  lineinfile:
+    path: /etc/php/{{ php_version }}/fpm/pool.d/www.conf
+    regexp: '^listen ='
+    line: 'listen = 0.0.0.0:9000'
+
+- name: Create new directory
+  file:
+    path=/var/www/html
+    mode=0755
+    state=directory
+
+- name: Copy index.php
+  template:
+    src: index.php.j2
+    dest: /var/www/html/index.php
+
+- name: Restart PHP-FPM
+  service:
+    name: php{{ php_version }}-fpm
+    state: restarted

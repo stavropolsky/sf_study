@@ -1,0 +1,22 @@
+---
+- name: Start mysql server
+  hosts: test
+  become: yes
+  tasks:
+    - name: Update packages
+      apt:
+        update_cache: yes
+      become: yes
+
+    - name: Install mysql server
+      apt:
+        name:
+          - mysql-server
+          - mysql-client
+        state: present
+
+    - name: Start mysql server
+      systemd:
+        name: mysql
+        state: started
+        enabled: yes
